@@ -6,48 +6,51 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  Dimensions
 } from 'react-native'
-import bgImage from './assets/Background.png'
+import Wrapper from './Wrapper'
 
-const { height, width } = Dimensions.get('window')
-const ARROW = '\u2039';
-
-const ListItem = props => (
-  <View style={styles.listItem}>
-    <Text style={styles.title}>{props.title}</Text>
-    <View style={styles.section}>
-      <Image style={styles.thumbnail} source={{ uri: props.image }} />
-      <Text style={styles.content}>Approved: {props.interactions.approved}</Text>
-      <Text style={styles.content}>Denied: {props.interactions.denied}</Text>
-    </View>
-  </View>
-)
+const ARROW = '\u2039'
 
 class Interactions extends Component {
   constructor(props) {
     super(props) 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 })
     this.state = {
       dataSource: ds.cloneWithRows(this.props.alteredData),
     };
   }
+
+  _renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => this.props.toggleModal(false)}>
+        <Text style={styles.backArrow}>{ARROW}</Text>
+      </TouchableOpacity>
+      <Text style={styles.headerText}>Interactions</Text>
+    </View>
+  )
+
+  _renderListItem = data => (
+    <View style={styles.listItem}>
+      <Text style={styles.title}>{data.title}</Text>
+      <View style={styles.section}>
+        <Image style={styles.thumbnail} source={{ uri: data.image }} />
+        <Text style={styles.content}>Approved: {data.interactions.approved}</Text>
+        <Text style={styles.content}>Denied: {data.interactions.denied}</Text>
+      </View>
+    </View>
+  )
   
   render() {
     return (
-      <Image source={bgImage} style={styles.background}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => this.props._onPress(false)}>
-            <Text style={styles.backArrow}>{ARROW}</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Interactions</Text>
-        </View>
-		    <ListView
+      <Wrapper>
+        { this._renderHeader() }
+        <ListView
           contentContainerStyle={styles.listView}
           dataSource={this.state.dataSource}
-          renderRow={rowData => <ListItem {...rowData} />}
-          enableEmptySections />	
-      </Image>
+          renderRow={this._renderListItem}
+          enableEmptySections
+        />	
+      </Wrapper>
     )
   }
 }
@@ -107,9 +110,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     backgroundColor: 'transparent',
   },
-  background: {
-    height,
-    width,
-  },
 })
+
 export default Interactions
